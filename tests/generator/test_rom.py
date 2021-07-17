@@ -1,23 +1,23 @@
 from clvm_tools import binutils
 from clvm_tools.clvmc import compile_clvm_text
 
-from chia.full_node.generator import run_generator
-from chia.full_node.mempool_check_conditions import get_name_puzzle_conditions
-from chia.types.blockchain_format.program import Program, SerializedProgram
-from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.types.condition_with_args import ConditionWithArgs
-from chia.types.name_puzzle_condition import NPC
-from chia.types.generator_types import BlockGenerator, GeneratorArg
-from chia.util.clvm import int_to_bytes
-from chia.util.condition_tools import ConditionOpcode
-from chia.util.ints import uint32
-from chia.wallet.puzzles.load_clvm import load_clvm
+from skynet.full_node.generator import run_generator
+from skynet.full_node.mempool_check_conditions import get_name_puzzle_conditions
+from skynet.types.blockchain_format.program import Program, SerializedProgram
+from skynet.types.blockchain_format.sized_bytes import bytes32
+from skynet.types.condition_with_args import ConditionWithArgs
+from skynet.types.name_puzzle_condition import NPC
+from skynet.types.generator_types import BlockGenerator, GeneratorArg
+from skynet.util.clvm import int_to_bytes
+from skynet.util.condition_tools import ConditionOpcode
+from skynet.util.ints import uint32
+from skynet.wallet.puzzles.load_clvm import load_clvm
 
 MAX_COST = int(1e15)
 COST_PER_BYTE = int(12000)
 
 
-DESERIALIZE_MOD = load_clvm("chialisp_deserialisation.clvm", package_or_requirement="chia.wallet.puzzles")
+DESERIALIZE_MOD = load_clvm("skynetlisp_deserialisation.clvm", package_or_requirement="skynet.wallet.puzzles")
 
 
 GENERATOR_CODE = """
