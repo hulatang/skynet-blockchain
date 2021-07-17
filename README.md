@@ -1,5 +1,6 @@
 # skynet-blockchain
 
+<<<<<<< HEAD
 ![Alt text](https://www.skynet.net/img/skynet_logo.svg)
 
 | Current Release/main | Development Branch/dev |
@@ -50,3 +51,6 @@ Once installed, a
 [Quick Start Guide](https://github.com/SkynetNetwork/skynet-blockchain/wiki/Quick-Start-Guide)
 is available from the repository
 [wiki](https://github.com/SkynetNetwork/skynet-blockchain/wiki).
+=======
+mainnet 08/2021
+>>>>>>> ed7686734b8efdcda1764e1960cf5d6b24f26c1f
