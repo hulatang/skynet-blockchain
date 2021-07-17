@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from skynetvdf import prove
+from chiavdf import prove
 
 from skynet.consensus.constants import ConsensusConstants
 from skynet.types.blockchain_format.classgroup import ClassgroupElement

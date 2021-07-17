@@ -5,7 +5,7 @@ from enum import IntEnum
 from typing import Optional
 from functools import lru_cache
 
-from skynetvdf import create_discriminant, verify_n_wesolowski
+from chiavdf import create_discriminant, verify_n_wesolowski
 
 from skynet.consensus.constants import ConsensusConstants
 from skynet.types.blockchain_format.classgroup import ClassgroupElement

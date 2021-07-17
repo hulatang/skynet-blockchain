@@ -7,7 +7,7 @@ import time
 import traceback
 from typing import Callable, Dict, List, Optional, Tuple, Set
 
-from skynetvdf import create_discriminant
+from chiavdf import create_discriminant
 
 from skynet.consensus.constants import ConsensusConstants
 from skynet.consensus.pot_iterations import calculate_sp_iters, is_overflow_block

@@ -5,7 +5,7 @@ from secrets import token_bytes
 from typing import Callable, Dict, List, Optional, Tuple, Set
 
 from blspy import AugSchemeMPL, G2Element
-from skynetbip158 import PyBIP158
+from chiabip158 import PyBIP158
 
 import skynet.server.ws_connection as ws
 from skynet.consensus.block_creation import create_unfinished_block

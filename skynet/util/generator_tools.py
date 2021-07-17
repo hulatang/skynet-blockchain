@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from skynetbip158 import PyBIP158
+from chiabip158 import PyBIP158
 
 from skynet.types.blockchain_format.coin import Coin
 from skynet.types.blockchain_format.sized_bytes import bytes32

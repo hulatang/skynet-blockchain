@@ -4,7 +4,7 @@ from typing import Optional
 
 from bitstring import BitArray
 from blspy import G1Element, AugSchemeMPL, PrivateKey
-from skynetpos import Verifier
+from chiapos import Verifier
 
 from skynet.consensus.constants import ConsensusConstants
 from skynet.types.blockchain_format.sized_bytes import bytes32
