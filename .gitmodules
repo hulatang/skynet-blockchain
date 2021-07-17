@@ -6,15 +6,15 @@
 	path = mozilla-ca
 	url = https://github.com/SkynetNetwork/mozilla-ca.git
         branch = main
-[submodule "chiabip158"]
-	path = chiabip158
-	url = https://github.com/SkynetNetwork/chiabip158.git
+[submodule "skynetbip158"]
+	path = skynetbip158
+	url = https://github.com/SkynetNetwork/skynetbip158.git
         branch = main
-[submodule "chiavdf"]
-	path = chiavdf
-	url = https://github.com/SkynetNetwork/chiavdf.git
+[submodule "skynetvdf"]
+	path = skynetvdf
+	url = https://github.com/SkynetNetwork/skynetvdf.git
         branch = main
-[submodule "chiapos"]
-	path = chiapos
-	url = https://github.com/SkynetNetwork/chiapos.git
+[submodule "skynetpos"]
+	path = skynetpos
+	url = https://github.com/SkynetNetwork/skynetpos.git
         branch = main
