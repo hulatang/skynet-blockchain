@@ -310,7 +310,7 @@ full_node:
       host: *self_hostname
       port: 8446
   introducer_peer:
-      host: introducer.skynet-network.org  # Skynet AWS introducer IPv4/IPv6
+      host: introducer.skynet-network.org  # Skynet introducer IPv4/IPv6
       port: 8444
   wallet_peer:
     host: *self_hostname
