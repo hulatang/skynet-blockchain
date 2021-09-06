@@ -1,11 +1,26 @@
 # $env:path should contain a path to editbin.exe and signtool.exe
+# Execute this script from project root folder.
+
+# clear dirs
+Write-Output "Clear all windows builds"
+Write-Output "......"
+rm .\build_scripts\build -Recurse -erroraction 'silentlycontinue'
+rm .\build_scripts\dist -Recurse -erroraction 'silentlycontinue'
+rm .\build_scripts\win_build -Recurse -erroraction 'silentlycontinue'
+rm .\venv -Recurse -erroraction 'silentlycontinue'
+rm .\skynet-blockchain-gui\build -Recurse -erroraction 'silentlycontinue'
+rm .\skynet-blockchain-gui\daemon -Recurse -erroraction 'silentlycontinue'
+#rm .\skynet-blockchain-gui\node_modules -Recurse
+rm .\skynet-blockchain-gui\release-builds -Recurse -erroraction 'silentlycontinue'
+rm .\skynet-blockchain-gui\Skynet-win32-x64 -Recurse -erroraction 'silentlycontinue'
+Write-Output "Cleared all"
 
 $ErrorActionPreference = "Stop"
 
 mkdir build_scripts\win_build
 Set-Location -Path ".\build_scripts\win_build" -PassThru
 
-git status
+#git status
 
 Write-Output "   ---"
 Write-Output "curl miniupnpc"
@@ -18,7 +33,7 @@ If ($LastExitCode -gt 0){
 }
 else
 {
-    Set-Location -Path - -PassThru
+    Set-Location -Path ..\..\ -PassThru
     Write-Output "miniupnpc download successful."
 }
 
@@ -30,7 +45,7 @@ python -m venv venv
 python -m pip install --upgrade pip
 pip install wheel pep517
 pip install pywin32
-pip install pyinstaller==4.2
+pip install pyinstaller==4.5
 pip install setuptools_scm
 
 Write-Output "   ---"
@@ -67,6 +82,7 @@ Write-Output "   ---"
 Write-Output "Use pyinstaller to create skynet .exe's"
 Write-Output "   ---"
 $SPEC_FILE = (python -c 'import skynet; print(skynet.PYINSTALLER_SPEC_PATH)') -join "`n"
+Write-Output "$SPEC_FILE"
 pyinstaller --log-level INFO $SPEC_FILE
 
 Write-Output "   ---"
@@ -75,30 +91,36 @@ Write-Output "   ---"
 Copy-Item "dist\daemon" -Destination "..\skynet-blockchain-gui\" -Recurse
 Set-Location -Path "..\skynet-blockchain-gui" -PassThru
 
-git status
+#git status
 
 Write-Output "   ---"
 Write-Output "Prepare Electron packager"
 Write-Output "   ---"
-$Env:NODE_OPTIONS = "--max-old-space-size=3000"
+$Env:NODE_OPTIONS = "--max-old-space-size=4000"
 npm install --save-dev electron-winstaller
 npm install -g electron-packager
 npm install
 npm audit fix
 
-git status
+#git status
 
 Write-Output "   ---"
 Write-Output "Electron package Windows Installer"
 Write-Output "   ---"
+./node_modules/.bin/electron-rebuild -f -w node-pty
 npm run build
 If ($LastExitCode -gt 0){
     Throw "npm run build failed!"
 }
 
+# sets the version for skynet-blockchain in package.json
+cp package.json package.json.orig
+(Get-Content ".\package.json") -replace 'version": ".*?"', ('version": "' + $env:SKYNET_INSTALLER_VERSION + '"') | Set-Content ".\package.json"
+
 Write-Output "   ---"
-Write-Output "Increase the stack for skynet command for (skynet plots create) chiapos limitations"
+Write-Output "Increase the stack for skynet command for (skynet plots create) skynetpos limitations"
 # editbin.exe needs to be in the path
+# C:\msvs_tools\editbin.exe /STACK:8000000 daemon\skynet.exe
 editbin.exe /STACK:8000000 daemon\skynet.exe
 Write-Output "   ---"
 
@@ -109,15 +131,18 @@ Write-Output "packageName is $packageName"
 
 Write-Output "   ---"
 Write-Output "electron-packager"
-electron-packager . Skynet --asar.unpack="**\daemon\**" --overwrite --icon=.\src\assets\img\skynet.ico --app-version=$packageVersion
+electron-packager . Skynet --asar.unpack="**\daemon\**" --overwrite --icon=.\src\assets\img\skynet.ico --app-version=$packageVersion --platform=win32 --arch=x64 
 Write-Output "   ---"
 
+Write-Output "   ---"
+Write-Output "patch installer loader image"
+Copy-Item "src\assets\img\skynet_loading_boxed.gif" -Destination "node_modules\electron-winstaller\resources\install-spinner.gif"
 Write-Output "   ---"
 Write-Output "node winstaller.js"
 node winstaller.js
 Write-Output "   ---"
 
-git status
+#git status
 
 If ($env:HAS_SECRET) {
    Write-Output "   ---"
@@ -129,7 +154,11 @@ If ($env:HAS_SECRET) {
    Write-Output "Skipping timestamp and verify signatures - no authorization to install certificates"
 }
 
-git status
+#git status
+
+deactivate
+Set-Location -Path ..\ -PassThru
+
 
 Write-Output "   ---"
 Write-Output "Windows Installer complete"

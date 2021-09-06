@@ -1,4 +1,20 @@
 #!/bin/bash
+# Execute this script from project root folder.
+echo "Clear all..."
+rm -rf ./build_scripts/build
+rm -rf ./build_scripts/dist
+rm -rf ./build_scripts/final_installer
+rm -rf ./skynet-blockchain-gui/build
+rm -rf ./skynet-blockchain-gui/daemon
+# rm -rf ./skynet-blockchain-gui/node_modules
+rm -rf ./skynet-blockchain-gui/Skynet-darwin-x64
+echo "...OK"
+
+. ./activate
+python -m pip install --upgrade pip
+pip install wheel pep517
+cd build_scripts
+
 pip install setuptools_scm
 # The environment variable SKYNET_INSTALLER_VERSION needs to be defined.
 # If the env variable NOTARIZE and the username and password variables are
@@ -22,7 +38,7 @@ sudo rm -rf dist
 mkdir dist
 
 echo "Create executables with pyinstaller"
-pip install pyinstaller==4.2
+pip install pyinstaller==4.5
 SPEC_FILE=$(python -c 'import skynet; print(skynet.PYINSTALLER_SPEC_PATH)')
 pyinstaller --log-level=INFO "$SPEC_FILE"
 LAST_EXIT_CODE=$?
@@ -37,6 +53,7 @@ cd skynet-blockchain-gui || exit
 echo "npm build"
 npm install
 npm audit fix
+./node_modules/.bin/electron-rebuild -f -w node-pty
 npm run build
 LAST_EXIT_CODE=$?
 if [ "$LAST_EXIT_CODE" -ne 0 ]; then
@@ -89,6 +106,8 @@ else
 	echo "Not on ci or no secrets so skipping Notarize"
 fi
 
+cd ..
+deactivate
 # Notes on how to manually notarize
 #
 # Ask for username and password. password should be an app specific password.

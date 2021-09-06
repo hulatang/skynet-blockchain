@@ -5,7 +5,7 @@ from secrets import token_bytes
 from typing import Callable, Dict, List, Optional, Tuple, Set
 
 from blspy import AugSchemeMPL, G2Element
-from chiabip158 import PyBIP158
+from skynetbip158 import PyBIP158
 
 import skynet.server.ws_connection as ws
 from skynet.consensus.block_creation import create_unfinished_block
@@ -366,7 +366,7 @@ class FullNodeAPI:
         Receive a full block from a peer full node (or ourselves).
         """
 
-        self.log.warning(f"Received unsolicited/late block from peer {peer.get_peer_info()}")
+        self.log.warning(f"Received unsolicited/late block from peer {peer.get_peer_logging()}")
         return None
 
     @api_request

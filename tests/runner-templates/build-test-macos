@@ -42,6 +42,13 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Create keychain for CI use
+      run: |
+        security create-keychain -p ${{ secrets.MAC_CI_KEYCHAIN_PASSWORD }} skynetchain
+        security default-keychain -s skynetchain
+        security unlock-keychain -p ${{ secrets.MAC_CI_KEYCHAIN_PASSWORD }} skynetchain
+        security set-keychain-settings -t 7200 -u skynetchain
+
     - name: Get pip cache dir
       id: pip-cache
       run: |

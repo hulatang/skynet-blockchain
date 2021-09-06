@@ -15,7 +15,7 @@ on:
 
 jobs:
   build:
-    name: MacOS core-types Tests
+    name: MacOS core-custom_types Tests
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
@@ -28,7 +28,7 @@ jobs:
     steps:
     - name: Cancel previous runs on the same branch
       if: ${{ github.ref != 'refs/heads/main' }}
-      uses: styfle/cancel-workflow-action@0.9.0
+      uses: styfle/cancel-workflow-action@0.9.1
       with:
         access_token: ${{ github.token }}
 
@@ -41,6 +41,14 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Create keychain for CI use
+      run: |
+        security create-keychain -p ${{ secrets.MAC_CI_KEYCHAIN_PASSWORD }} skynetchain
+        security default-keychain -s skynetchain
+        security unlock-keychain -p ${{ secrets.MAC_CI_KEYCHAIN_PASSWORD }} skynetchain
+        security set-keychain-settings -t 7200 -u skynetchain
+
 
     - name: Get pip cache dir
       id: pip-cache
@@ -90,10 +98,10 @@ jobs:
         . ./activate
         venv/bin/python -m pip install pytest pytest-asyncio pytest-xdist
 
-    - name: Test core-types code with pytest
+    - name: Test core-custom_types code with pytest
       run: |
         . ./activate
-        ./venv/bin/py.test tests/core/types/test_coin.py tests/core/types/test_proof_of_space.py -s -v --durations 0 
+        ./venv/bin/py.test tests/core/custom_types/test_coin.py tests/core/custom_types/test_proof_of_space.py tests/core/custom_types/test_spend_bundle.py -s -v --durations 0 
 #
 # THIS FILE IS GENERATED. SEE https://github.com/SkynetNetwork/skynet-blockchain/tree/main/tests#readme
 #

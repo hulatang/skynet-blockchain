@@ -3,7 +3,9 @@ import dataclasses
 from skynet.types.blockchain_format.sized_bytes import bytes32
 from skynet.util.byte_types import hexstr_to_bytes
 from skynet.util.ints import uint8, uint32, uint64, uint128
+import logging
 
+log = logging.getLogger(__name__)
 
 @dataclasses.dataclass(frozen=True)
 class ConsensusConstants:
@@ -32,7 +34,7 @@ class ConsensusConstants:
     MAX_FUTURE_TIME: int  # The next block can have a timestamp of at most these many seconds more
     NUMBER_OF_TIMESTAMPS: int  # Than the average of the last NUMBER_OF_TIMESTAMPS blocks
     # Used as the initial cc rc challenges, as well as first block back pointers, and first SES back pointer
-    # We override this value based on the chain being run (testnet0, testnet1, mainnet, etc)
+    # We override this value based on the chain being run (testnet1, testnet1, mainnet, etc)
     GENESIS_CHALLENGE: bytes32
     # Forks of skynet should change this value to provide replay attack protection
     AGG_SIG_ME_ADDITIONAL_DATA: bytes
@@ -51,6 +53,7 @@ class ConsensusConstants:
     WEIGHT_PROOF_THRESHOLD: uint8
     WEIGHT_PROOF_RECENT_BLOCKS: uint32
     MAX_BLOCK_COUNT_PER_REQUESTS: uint32
+    RUST_CONDITION_CHECKER: uint64
     INITIAL_FREEZE_END_TIMESTAMP: uint64
     BLOCKS_CACHE_SIZE: uint32
     NETWORK_TYPE: int
@@ -65,9 +68,15 @@ class ConsensusConstants:
         """
         Overrides str (hex) values with bytes.
         """
-
+        
+        filtered_changes = {}
         for k, v in changes.items():
+            if not hasattr(self, k):
+                log.warn(f'invalid key in network configuration (config.yaml) "{k}". Ignoring')
+                continue
             if isinstance(v, str):
-                changes[k] = hexstr_to_bytes(v)
+                filtered_changes[k] = hexstr_to_bytes(v)
+            else:
+                filtered_changes[k] = v
 
-        return dataclasses.replace(self, **changes)
+        return dataclasses.replace(self, **filtered_changes)

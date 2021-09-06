@@ -15,8 +15,14 @@ def calculate_pool_reward(height: uint32) -> uint64:
     """
 
     if height == 0:
-        return uint64(int((7 / 8) * 21000000 * _synt_per_skynet))
+        return uint64(int((7 / 8) * 5000000 * _synt_per_skynet))
+    elif height < 2 * _blocks_per_year:
+        return uint64(int((7 / 8) * 5 * _synt_per_skynet))
     elif height < 3 * _blocks_per_year:
+        return uint64(int((7 / 8) * 4 * _synt_per_skynet))
+    elif height < 4 * _blocks_per_year:
+        return uint64(int((7 / 8) * 3 * _synt_per_skynet))
+    elif height < 5 * _blocks_per_year:
         return uint64(int((7 / 8) * 2 * _synt_per_skynet))
     elif height < 6 * _blocks_per_year:
         return uint64(int((7 / 8) * 1 * _synt_per_skynet))
@@ -38,8 +44,14 @@ def calculate_base_farmer_reward(height: uint32) -> uint64:
     rates increase continuously.
     """
     if height == 0:
-        return uint64(int((1 / 8) * 21000000 * _synt_per_skynet))
+        return uint64(int((1 / 8) * 5000000 * _synt_per_skynet))
+    elif height < 2 * _blocks_per_year:
+        return uint64(int((1 / 8) * 5 * _synt_per_skynet))
     elif height < 3 * _blocks_per_year:
+        return uint64(int((1 / 8) * 4 * _synt_per_skynet))
+    elif height < 4 * _blocks_per_year:
+        return uint64(int((1 / 8) * 3 * _synt_per_skynet))
+    elif height < 5 * _blocks_per_year:
         return uint64(int((1 / 8) * 2 * _synt_per_skynet))
     elif height < 6 * _blocks_per_year:
         return uint64(int((1 / 8) * 1 * _synt_per_skynet))

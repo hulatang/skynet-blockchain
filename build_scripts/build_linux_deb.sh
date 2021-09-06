@@ -1,4 +1,15 @@
 #!/bin/bash
+# Execute this script from project root folder.
+
+. ./activate
+cd build_scripts
+echo "Clear all..."
+rm -rf ./build
+rm -rf ./dist
+rm -rf ./final_installer
+rm -rf ../skynet-blockchain-gui/build
+rm -rf ../skynet-blockchain-gui/daemon
+echo "...OK"
 
 if [ ! "$1" ]; then
   echo "This script requires either amd64 of arm64 as an argument"
@@ -32,7 +43,7 @@ rm -rf dist
 mkdir dist
 
 echo "Create executables with pyinstaller"
-pip install pyinstaller==4.2
+pip install pyinstaller==4.5
 SPEC_FILE=$(python -c 'import skynet; print(skynet.PYINSTALLER_SPEC_PATH)')
 pyinstaller --log-level=INFO "$SPEC_FILE"
 LAST_EXIT_CODE=$?
@@ -48,6 +59,7 @@ cd skynet-blockchain-gui || exit
 echo "npm build"
 npm install
 npm audit fix
+./node_modules/.bin/electron-rebuild -f -w node-pty
 npm run build
 LAST_EXIT_CODE=$?
 if [ "$LAST_EXIT_CODE" -ne 0 ]; then
@@ -55,10 +67,18 @@ if [ "$LAST_EXIT_CODE" -ne 0 ]; then
 	exit $LAST_EXIT_CODE
 fi
 
+# sets the version for skynet-blockchain in package.json
+cp package.json package.json.orig
+jq --arg VER "$SKYNET_INSTALLER_VERSION" '.version=$VER' package.json > temp.json && mv temp.json package.json
+
 electron-packager . skynet-blockchain --asar.unpack="**/daemon/**" --platform=linux \
 --icon=src/assets/img/Skynet.icns --overwrite --app-bundle-id=net.skynet.blockchain \
 --appVersion=$SKYNET_INSTALLER_VERSION
 LAST_EXIT_CODE=$?
+
+# reset the package.json to the original
+mv package.json.orig package.json
+
 if [ "$LAST_EXIT_CODE" -ne 0 ]; then
 	echo >&2 "electron-packager failed!"
 	exit $LAST_EXIT_CODE
@@ -79,3 +99,5 @@ if [ "$LAST_EXIT_CODE" -ne 0 ]; then
 fi
 
 ls final_installer/
+cd ..
+deactivate

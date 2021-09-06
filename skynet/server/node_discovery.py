@@ -9,8 +9,10 @@ from typing import Dict, Optional, List, Set
 
 import aiosqlite
 
+from async_dns.core import types
+from async_dns.resolver import ProxyResolver
+
 import skynet.server.ws_connection as ws
-import dns.asyncresolver
 from skynet.protocols import full_node_protocol, introducer_protocol
 from skynet.protocols.protocol_message_types import ProtocolMessageTypes
 from skynet.server.address_manager import AddressManager, ExtendedPeerInfo
@@ -26,14 +28,13 @@ MAX_PEERS_RECEIVED_PER_REQUEST = 1000
 MAX_TOTAL_PEERS_RECEIVED = 3000
 MAX_CONCURRENT_OUTBOUND_CONNECTIONS = 70
 NETWORK_ID_DEFAULT_PORTS = {
-    "mainnet": 8444,
-    "testnet7": 58444,
-    "testnet8": 58445,
+    "mainnet": 9999,
+    "testnet_05": 59999,
 }
 
 
 class FullNodeDiscovery:
-    resolver: Optional[dns.asyncresolver.Resolver]
+    resolverAsync: Optional[ProxyResolver]
 
     def __init__(
         self,
@@ -70,6 +71,7 @@ class FullNodeDiscovery:
         self.peer_connect_interval = peer_connect_interval
         self.log = log
         self.relay_queue = None
+        self.timeout = 30.0
         self.address_manager: Optional[AddressManager] = None
         self.connection_time_pretest: Dict = {}
         self.received_count_from_peers: Dict = {}
@@ -79,10 +81,10 @@ class FullNodeDiscovery:
         self.cleanup_task: Optional[asyncio.Task] = None
         self.initial_wait: int = 0
         try:
-            self.resolver: Optional[dns.asyncresolver.Resolver] = dns.asyncresolver.Resolver()
+            self.resolverAsync: Optional[ProxyResolver] = ProxyResolver()
         except Exception:
-            self.resolver = None
-            self.log.exception("Error initializing asyncresolver")
+            self.resolverAsync = None
+            self.log.exception("Error initializing resolverAsync")
         self.pending_outbound_connections: Set[str] = set()
         self.pending_tasks: Set[asyncio.Task] = set()
         self.default_port: Optional[int] = default_port
@@ -205,23 +207,24 @@ class FullNodeDiscovery:
                     "Network id not supported in NETWORK_ID_DEFAULT_PORTS neither in config. Skipping DNS query."
                 )
                 return
-            if self.resolver is None:
-                self.log.warn("Skipping DNS query: asyncresolver not initialized.")
+            if self.resolverAsync is None:
+                self.log.warn("Skipping DNS query: resolverAsync not initialized.")
                 return
-            peers: List[TimestampedPeerInfo] = []
-            result = await self.resolver.resolve(qname=dns_address, lifetime=30)
-            for ip in result:
-                peers.append(
-                    TimestampedPeerInfo(
-                        ip.to_text(),
-                        self.default_port,
-                        0,
+            for rdtype in [types.A, types.AAAA]:
+                peers: List[TimestampedPeerInfo] = []
+                res = await asyncio.wait_for(self.resolverAsync.query(dns_address, rdtype), self.timeout)
+                for dns_record in res[0].an:
+                    ip = str(dns_record.data).split("<a: ",1)[1][:-1] if (rdtype == types.A) else str(dns_record.data).split("<aaaa: ",1)[1][:-1]
+                    peers.append(
+                        TimestampedPeerInfo(
+                            ip,
+                            self.default_port,
+                            0,
+                        )
                     )
-                )
-            self.log.info(f"Received {len(peers)} peers from DNS seeder.")
-            if len(peers) == 0:
-                return
-            await self._respond_peers_common(full_node_protocol.RespondPeers(peers), None, False)
+                self.log.info(f"Received {len(peers)} peers from DNS seeder, using rdtype = {rdtype}.")
+                if len(peers) > 0:
+                    await self._respond_peers_common(full_node_protocol.RespondPeers(peers), None, False)
         except Exception as e:
             self.log.warn(f"querying DNS introducer failed: {e}")
 
@@ -699,9 +702,10 @@ class WalletPeers(FullNodeDiscovery):
         await self.start_tasks()
 
     async def ensure_is_closed(self) -> None:
-        if self.is_closed:
-            return None
-        await self._close_common()
+        if hasattr(self, 'connection'): # Fix AttributeError: 'WalletPeers' object has no attribute 'connection' on "skynet_wallet: Stopped"
+            if self.is_closed:
+                return None
+            await self._close_common()
 
     async def respond_peers(self, request, peer_src, is_full_node) -> None:
         await self._respond_peers_common(request, peer_src, is_full_node)

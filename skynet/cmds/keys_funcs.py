@@ -7,7 +7,7 @@ from skynet.util.bech32m import encode_puzzle_hash
 from skynet.util.config import load_config
 from skynet.util.default_root import DEFAULT_ROOT_PATH
 from skynet.util.ints import uint32
-from skynet.util.keychain import Keychain, bytes_to_mnemonic, generate_mnemonic
+from skynet.util.keychain import Keychain, bytes_to_mnemonic, generate_mnemonic, unlocks_keyring
 from skynet.wallet.derive_keys import master_sk_to_farmer_sk, master_sk_to_pool_sk, master_sk_to_wallet_sk
 
 keychain: Keychain = Keychain()
@@ -24,7 +24,7 @@ def generate_and_print():
     print("Note that this key has not been added to the keychain. Run skynet keys add")
     return mnemonic
 
-
+@unlocks_keyring(use_passphrase_cache=True)
 def generate_and_add():
     """
     Generates a seed for a private key, prints the mnemonic to the terminal, and adds the key to the keyring.
@@ -34,12 +34,12 @@ def generate_and_add():
     print("Generating private key")
     add_private_key_seed(mnemonic)
 
-
+@unlocks_keyring(use_passphrase_cache=True)
 def query_and_add_private_key_seed():
     mnemonic = input("Enter the mnemonic you want to use: ")
     add_private_key_seed(mnemonic)
 
-
+@unlocks_keyring(use_passphrase_cache=True)
 def add_private_key_seed(mnemonic: str):
     """
     Add a private key seed to the keyring, with the given mnemonic.
@@ -55,7 +55,7 @@ def add_private_key_seed(mnemonic: str):
         print(e)
         return None
 
-
+@unlocks_keyring(use_passphrase_cache=True)
 def show_all_keys(show_mnemonic: bool):
     """
     Prints all keys and mnemonics (if available).
@@ -96,7 +96,7 @@ def show_all_keys(show_mnemonic: bool):
             print("  Mnemonic seed (24 secret words):")
             print(mnemonic)
 
-
+@unlocks_keyring(use_passphrase_cache=True)
 def delete(fingerprint: int):
     """
     Delete a key by its public key fingerprint (which is an integer).
@@ -104,8 +104,8 @@ def delete(fingerprint: int):
     print(f"Deleting private_key with fingerprint {fingerprint}")
     keychain.delete_key_by_fingerprint(fingerprint)
 
-
-def sign(message: str, fingerprint: int, hd_path: str):
+@unlocks_keyring(use_passphrase_cache=True)
+def sign(message: str, fingerprint: int, hd_path: str, as_bytes: bool):
     k = Keychain()
     private_keys = k.get_all_private_keys()
 
@@ -114,8 +114,9 @@ def sign(message: str, fingerprint: int, hd_path: str):
         if sk.get_g1().get_fingerprint() == fingerprint:
             for c in path:
                 sk = AugSchemeMPL.derive_child_sk(sk, c)
+            data = bytes.fromhex(message) if as_bytes else bytes(message, "utf-8")
             print("Public key:", sk.get_g1())
-            print("Signature:", AugSchemeMPL.sign(sk, bytes(message, "utf-8")))
+            print("Signature:", AugSchemeMPL.sign(sk, data))
             return None
     print(f"Fingerprint {fingerprint} not found in keychain")
 
