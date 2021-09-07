@@ -1,3 +1,5 @@
 # skynet-blockchain
 
-mainnet 08/2021
+Testnet is live
+
+Mainnet 10/2021
