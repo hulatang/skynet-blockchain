@@ -629,6 +629,7 @@ class TestFullNodeProtocol:
             guarantee_transaction_block=True,
             farmer_reward_puzzle_hash=ph,
             pool_reward_puzzle_hash=ph,
+            timelord_reward_puzzle_hash=ph,
         )
         await full_node_1.full_node.respond_block(fnp.RespondBlock(blocks[-2]))
         await full_node_1.full_node.respond_block(fnp.RespondBlock(blocks[-1]))
@@ -737,6 +738,7 @@ class TestFullNodeProtocol:
             guarantee_transaction_block=True,
             farmer_reward_puzzle_hash=wallet_ph,
             pool_reward_puzzle_hash=wallet_ph,
+            timelord_reward_puzzle_hash=wallet_ph,
         )
         for block in blocks:
             await full_node_1.full_node.respond_block(fnp.RespondBlock(block))
@@ -909,6 +911,7 @@ class TestFullNodeProtocol:
             guarantee_transaction_block=True,
             farmer_reward_puzzle_hash=wallet_ph,
             pool_reward_puzzle_hash=wallet_ph,
+            timelord_reward_puzzle_hash=wallet_ph,
         )
 
         incoming_queue, dummy_node_id = await add_dummy_connection(server_1, 12312)
@@ -1002,6 +1005,7 @@ class TestFullNodeProtocol:
             guarantee_transaction_block=True,
             farmer_reward_puzzle_hash=wallet_a.get_new_puzzlehash(),
             pool_reward_puzzle_hash=wallet_a.get_new_puzzlehash(),
+            timelord_reward_puzzle_hash=wallet_receiver.get_new_puzzlehash(),
         )
         spend_bundle = wallet_a.generate_signed_transaction(
             1123,
@@ -1045,6 +1049,7 @@ class TestFullNodeProtocol:
             guarantee_transaction_block=True,
             farmer_reward_puzzle_hash=wallet_a.get_new_puzzlehash(),
             pool_reward_puzzle_hash=wallet_a.get_new_puzzlehash(),
+            timelord_reward_puzzle_hash=wallet_a.get_new_puzzlehash(),
         )
 
         spend_bundle = wallet_a.generate_signed_transaction(
@@ -1225,11 +1230,12 @@ class TestFullNodeProtocol:
             uint8(11),
             [],
             peak.sub_slot_iters,
+            timelord_reward_puzzle_hash=peak.timelord_puzzle_hash
         )
 
         peer = await connect_and_get_peer(server_1, server_2)
         res = await full_node_1.new_signage_point_or_end_of_sub_slot(
-            fnp.NewSignagePointOrEndOfSubSlot(None, sp.cc_vdf.challenge, uint8(11), sp.rc_vdf.challenge), peer
+            fnp.NewSignagePointOrEndOfSubSlot(None, sp.cc_vdf.challenge, uint8(11), sp.rc_vdf.challenge, sp.timelord_reward_puzzle_hash), peer
         )
         assert res.type == ProtocolMessageTypes.request_signage_point_or_end_of_sub_slot.value
         assert fnp.RequestSignagePointOrEndOfSubSlot.from_bytes(res.data).index_from_challenge == uint8(11)
@@ -1291,15 +1297,16 @@ class TestFullNodeProtocol:
             uint8(4),
             [],
             peak_2.sub_slot_iters,
+            peak_2.timelord_puzzle_hash
         )
 
         # Submits the signage point, cannot add because don't have block
         await full_node_1.respond_signage_point(
-            fnp.RespondSignagePoint(4, sp.cc_vdf, sp.cc_proof, sp.rc_vdf, sp.rc_proof), peer
+            fnp.RespondSignagePoint(4, sp.cc_vdf, sp.cc_proof, sp.rc_vdf, sp.rc_proof, sp.timelord_reward_puzzle_hash), peer
         )
         # Should not add duplicates to cache though
         await full_node_1.respond_signage_point(
-            fnp.RespondSignagePoint(4, sp.cc_vdf, sp.cc_proof, sp.rc_vdf, sp.rc_proof), peer
+            fnp.RespondSignagePoint(4, sp.cc_vdf, sp.cc_proof, sp.rc_vdf, sp.rc_proof, sp.timelord_reward_puzzle_hash), peer
         )
         assert full_node_1.full_node.full_node_store.get_signage_point(sp.cc_vdf.output.get_hash()) is None
         assert len(full_node_1.full_node.full_node_store.future_sp_cache[sp.rc_vdf.challenge]) == 1

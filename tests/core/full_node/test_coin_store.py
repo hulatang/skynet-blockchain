@@ -6,9 +6,9 @@ from typing import List, Optional, Set, Tuple
 import aiosqlite
 import pytest
 
-from skynet.consensus.block_rewards import calculate_base_farmer_reward, calculate_pool_reward
+from skynet.consensus.block_rewards import calculate_base_farmer_reward, calculate_pool_reward, calculate_base_timelord_fee
 from skynet.consensus.blockchain import Blockchain, ReceiveBlockResult
-from skynet.consensus.coinbase import create_farmer_coin, create_pool_coin
+from skynet.consensus.coinbase import create_farmer_coin, create_pool_coin, create_timelord_coin
 from skynet.full_node.block_store import BlockStore
 from skynet.full_node.coin_store import CoinStore
 from skynet.full_node.mempool_check_conditions import get_name_puzzle_conditions
@@ -36,12 +36,16 @@ WALLET_A = WalletTool(constants)
 log = logging.getLogger(__name__)
 
 
-def get_future_reward_coins(block: FullBlock) -> Tuple[Coin, Coin]:
+def get_future_reward_coins(block: FullBlock) -> Tuple[Coin, Coin, Coin]:
+    timelord_amount = calculate_base_timelord_fee(block.height)
     pool_amount = calculate_pool_reward(block.height)
     farmer_amount = calculate_base_farmer_reward(block.height)
     if block.is_transaction_block():
         assert block.transactions_info is not None
         farmer_amount = uint64(farmer_amount + block.transactions_info.fees)
+    timelord_coin: Coin = create_timelord_coin(
+        block.height, block.foliage.foliage_block_data.timelord_reward_puzzle_hash, timelord_amount, constants.GENESIS_CHALLENGE
+    )
     pool_coin: Coin = create_pool_coin(
         block.height, block.foliage.foliage_block_data.pool_target.puzzle_hash, pool_amount, constants.GENESIS_CHALLENGE
     )
@@ -51,10 +55,10 @@ def get_future_reward_coins(block: FullBlock) -> Tuple[Coin, Coin]:
         farmer_amount,
         constants.GENESIS_CHALLENGE,
     )
-    return pool_coin, farmer_coin
+    return pool_coin, farmer_coin, timelord_coin
 
 
-class TestCoinStore:
+class TestCoinStoreWithBlocks:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("rust_checker", [True, False])
     async def test_basic_coin_store(self, rust_checker: bool):
@@ -100,9 +104,10 @@ class TestCoinStore:
             should_be_included_prev: Set[Coin] = set()
             should_be_included: Set[Coin] = set()
             for block in blocks:
-                farmer_coin, pool_coin = get_future_reward_coins(block)
+                farmer_coin, pool_coin, timelord_coin = get_future_reward_coins(block)
                 should_be_included.add(farmer_coin)
                 should_be_included.add(pool_coin)
+                should_be_included.add(timelord_coin)
                 if block.is_transaction_block():
                     if block.transactions_generator is not None:
                         block_gen: BlockGenerator = BlockGenerator(block.transactions_generator, [])
@@ -119,11 +124,25 @@ class TestCoinStore:
 
                     assert block.get_included_reward_coins() == should_be_included_prev
 
-                    await coin_store.new_block(block, tx_additions, tx_removals)
+                    if block.is_transaction_block():
+                        assert block.foliage_transaction_block is not None
+                        await coin_store.new_block(
+                            block.height,
+                            block.foliage_transaction_block.timestamp,
+                            block.get_included_reward_coins(),
+                            tx_additions,
+                            tx_removals,
+                        )
 
-                    if block.height != 0:
-                        with pytest.raises(Exception):
-                            await coin_store.new_block(block, tx_additions, tx_removals)
+                        if block.height != 0:
+                            with pytest.raises(Exception):
+                                await coin_store.new_block(
+                                    block.height,
+                                    block.foliage_transaction_block.timestamp,
+                                    block.get_included_reward_coins(),
+                                    tx_additions,
+                                    tx_removals,
+                                )
 
                     for expected_coin in should_be_included_prev:
                         # Check that the coinbase rewards are added
@@ -163,7 +182,17 @@ class TestCoinStore:
             for block in blocks:
                 if block.is_transaction_block():
                     removals, additions = [], []
-                    await coin_store.new_block(block, additions, removals)
+
+                    if block.is_transaction_block():
+                        assert block.foliage_transaction_block is not None
+                        await coin_store.new_block(
+                            block.height,
+                            block.foliage_transaction_block.timestamp,
+                            block.get_included_reward_coins(),
+                            additions,
+                            removals,
+                        )
+
                     coins = block.get_included_reward_coins()
                     records = [await coin_store.get_coin_record(coin.name()) for coin in coins]
 
@@ -195,7 +224,16 @@ class TestCoinStore:
             for block in blocks:
                 if block.is_transaction_block():
                     removals, additions = [], []
-                    await coin_store.new_block(block, additions, removals)
+                    if block.is_transaction_block():
+                        assert block.foliage_transaction_block is not None
+                        await coin_store.new_block(
+                            block.height,
+                            block.foliage_transaction_block.timestamp,
+                            block.get_included_reward_coins(),
+                            additions,
+                            removals,
+                        )
+
                     coins = block.get_included_reward_coins()
                     records: List[Optional[CoinRecord]] = [
                         await coin_store.get_coin_record(coin.name()) for coin in coins

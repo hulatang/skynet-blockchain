@@ -4,14 +4,15 @@ min_mainnet_k_size: 32
 ping_interval: 120
 self_hostname: &self_hostname "localhost"
 daemon_port: 9988
+daemon_max_message_size: 50000000 # maximum size of RPC message in bytes
 inbound_rate_limit_percent: 100
 outbound_rate_limit_percent: 30
 
 network_overrides: &network_overrides
   constants:
-    testnet_05:
+    testnet_09:
       #DIFFICULTY_CONSTANT_FACTOR: 10052721566054
-      GENESIS_CHALLENGE: 00fabb671d13afd21bc3d13cd028d6f27b97c1acb6bf4e3164170ad7f2e5586e
+      GENESIS_CHALLENGE: 550be5da203c144e0215a247f8f971f371c9a7c0df76cb8795a7d89f9f09dfb5
       GENESIS_PRE_FARM_FARMER_PUZZLE_HASH: e9a8b36d5c84b96f39e5262980eacc193e597fc9d254417f806190de5e598bc4
       GENESIS_PRE_FARM_POOL_PUZZLE_HASH: e9a8b36d5c84b96f39e5262980eacc193e597fc9d254417f806190de5e598bc4
       #INITIAL_FREEZE_END_TIMESTAMP: 1626739201 # 20 07 2021 00:00:01 GMT+0000
@@ -25,11 +26,11 @@ network_overrides: &network_overrides
     #mainnet:
       #address_prefix: "xnt"
       #default_full_node_port: 9999
-    testnet_05:
+    testnet_09:
       address_prefix: "txnt"
       default_full_node_port: 9999
 
-selected_network: &selected_network "testnet_05"
+selected_network: &selected_network "testnet_09"
 ALERTS_URL: https://download.skynet-network.org/notify/mainnet_alert.txt
 SKYNET_ALERTS_PUBKEY: 89b7fd87cb56e926ecefb879a29aae308be01f31980569f6a75a69d2a9a69daefd71fb778d865f7c50d6c967e3025937
 
@@ -73,8 +74,8 @@ harvester:
   plots_refresh_parameter:
     interval_seconds: 120 # The interval in seconds to refresh the plot file manager
     retry_invalid_seconds: 1200 # How long to wait before re-trying plots which failed to load
-    batch_size: 30 # How many plot files the harvester processes before it waits batch_sleep_milliseconds
-    batch_sleep_milliseconds: 10 # Milliseconds the harvester sleeps between batch processing
+    batch_size: 300 # How many plot files the harvester processes before it waits batch_sleep_milliseconds
+    batch_sleep_milliseconds: 1 # Milliseconds the harvester sleeps between batch processing
 
 
   # If True use parallel reads in skynetpos
@@ -142,6 +143,7 @@ farmer:
 # Don't run this unless you want to run VDF clients on the local machine.
 timelord_launcher:
   # The server where the VDF clients will connect to.
+  host: *self_hostname
   port: 9990
   # Number of VDF client processes to keep alive in the local machine.
   process_count: 3
@@ -149,6 +151,10 @@ timelord_launcher:
 
 
 timelord:
+
+  # Replace this with a real puzzle hash
+  # xnt_target_address: txnt102gkhhzs60grx7cfnpng5n6rjecr89r86l5s8xux2za8k820cxsq64ssdg
+
   # The timelord server (if run) will run on this port
   port: 9997
   # Provides a list of VDF clients expected to connect to this timelord.
@@ -220,6 +226,8 @@ full_node:
 
   # How often to initiate outbound connections to other full nodes.
   peer_connect_interval: 30
+  # How long to wait for a peer connection
+  peer_connect_timeout: 30
   # Accept peers until this number of connections
   target_peer_count: 80
   # Initiate outbound connections until this number is hit.
@@ -249,6 +257,10 @@ full_node:
   # analyze with skynet/utils/profiler.py
   enable_profiler: False
 
+  # this is a debug and profiling facility that logs all SQLite commands to a
+  # separate log file (under logging/sql.log).
+  log_sqlite_cmds: False
+  
   # List of trusted DNS seeders to bootstrap from.
   # If you modify this, please change the hardcode as well from FullNode.set_server()
   dns_servers:

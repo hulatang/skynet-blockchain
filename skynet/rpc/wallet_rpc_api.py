@@ -7,7 +7,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from blspy import PrivateKey, G1Element
 
-from skynet.consensus.block_rewards import calculate_base_farmer_reward
+from skynet.consensus.block_rewards import calculate_base_farmer_reward, calculate_base_timelord_fee
 from skynet.pools.pool_wallet import PoolWallet
 from skynet.pools.pool_wallet_info import create_pool_state, FARMING_TO_POOL, PoolWalletInfo, PoolState
 from skynet.protocols.protocol_message_types import ProtocolMessageTypes
@@ -1144,6 +1144,7 @@ class WalletRpcApi:
         amount = 0
         pool_reward_amount = 0
         farmer_reward_amount = 0
+        timelord_reward_amount = 0
         fee_amount = 0
         last_height_farmed = 0
         for record in tx_records:
@@ -1158,6 +1159,7 @@ class WalletRpcApi:
             if record.type == TransactionType.FEE_REWARD:
                 fee_amount += record.amount - calculate_base_farmer_reward(height)
                 farmer_reward_amount += calculate_base_farmer_reward(height)
+                timelord_reward_amount += calculate_base_timelord_fee(height)
             if height > last_height_farmed:
                 last_height_farmed = height
             amount += record.amount
@@ -1167,6 +1169,7 @@ class WalletRpcApi:
             "farmed_amount": amount,
             "pool_reward_amount": pool_reward_amount,
             "farmer_reward_amount": farmer_reward_amount,
+            "timelord_reward_amount": timelord_reward_amount,
             "fee_amount": fee_amount,
             "last_height_farmed": last_height_farmed,
         }

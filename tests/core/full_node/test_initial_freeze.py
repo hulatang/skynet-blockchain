@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from skynet.consensus.block_rewards import calculate_base_farmer_reward, calculate_pool_reward
+from skynet.consensus.block_rewards import calculate_base_farmer_reward, calculate_pool_reward, calculate_base_timelord_fee
 from skynet.consensus.blockchain import ReceiveBlockResult
 from skynet.protocols import full_node_protocol, wallet_protocol
 from skynet.protocols.protocol_message_types import ProtocolMessageTypes
@@ -48,7 +48,7 @@ class TestTransactions:
             await full_node_api.farm_new_transaction_block(FarmNewBlockProtocol(ph))
 
         funds = sum(
-            [calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) for i in range(1, num_blocks)]
+            [calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i)) for i in range(1, num_blocks)]
         )
         # funds += calculate_base_farmer_reward(0)
         await asyncio.sleep(2)
@@ -130,7 +130,7 @@ class TestTransactions:
             await full_node_api.farm_new_transaction_block(FarmNewBlockProtocol(ph))
 
         funds = sum(
-            [calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) for i in range(1, num_blocks)]
+            [calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i)) for i in range(1, num_blocks)]
         )
 
         await asyncio.sleep(2)

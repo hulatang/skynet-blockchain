@@ -10,8 +10,8 @@ testnet_kwargs = {
     "SUB_SLOT_ITERS_STARTING": 2 ** 27,
     # DIFFICULTY_STARTING is the starting difficulty for the first epoch, which is then further
     # multiplied by another factor of DIFFICULTY_CONSTANT_FACTOR, to be used in the VDF iter calculation formula.
-    "DIFFICULTY_CONSTANT_FACTOR": 2 ** 55,
-    "DIFFICULTY_STARTING": 5,
+    "DIFFICULTY_CONSTANT_FACTOR": 2 ** 59,
+    "DIFFICULTY_STARTING": 4,
     "DIFFICULTY_CHANGE_MAX_FACTOR": 3,  # The next difficulty is truncated to range [prev / FACTOR, prev * FACTOR]
     # These 3 constants must be changed at the same time
     "SUB_EPOCH_BLOCKS": 384,  # The number of blocks per sub-epoch, mainnet 384
@@ -26,9 +26,9 @@ testnet_kwargs = {
     "MAX_FUTURE_TIME": 5 * 60,  # The next block can have a timestamp of at most these many seconds in the future
     "NUMBER_OF_TIMESTAMPS": 11,  # Than the average of the last NUMBER_OF_TIMESTAMPS blocks
     # Used as the initial cc rc challenges, as well as first block back pointers, and first SES back pointer
-    # We override this value based on the chain being run (testnet_05, testnet_05, mainnet, etc)
+    # We override this value based on the chain being run (testnet_09, testnet_09, mainnet, etc)
     # Default used for tests is std_hash(b'')
-    "GENESIS_CHALLENGE": bytes.fromhex("00fabb671d13afd21bc3d13cd028d6f27b97c1acb6bf4e3164170ad7f2e5586e"),
+    "GENESIS_CHALLENGE": bytes.fromhex("550be5da203c144e0215a247f8f971f371c9a7c0df76cb8795a7d89f9f09dfb5"),
     # Forks of skynet should change this value to provide replay attack protection. This is set to mainnet genesis chall
     "AGG_SIG_ME_ADDITIONAL_DATA": bytes.fromhex("af0037ce4927cd5212734a87bae07454580f2d9986734908bac2031fe852de79"),
     "GENESIS_PRE_FARM_POOL_PUZZLE_HASH": bytes.fromhex(
@@ -56,6 +56,9 @@ testnet_kwargs = {
     "MAX_GENERATOR_SIZE": 1000000,
     "MAX_GENERATOR_REF_LIST_SIZE": 512,  # Number of references allowed in the block generator ref list
     "POOL_SUB_SLOT_ITERS": 37600000000,  # iters limit * NUM_SPS
+    "TIMELORD_PUZZLE_HASH": bytes.fromhex(
+        "e9a8b36d5c84b96f39e5262980eacc193e597fc9d254417f806190de5e598bc4"
+    ),
 }
 
 

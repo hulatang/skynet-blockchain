@@ -548,6 +548,7 @@ class FullNodeAPI:
                     sp.cc_proof,
                     sp.rc_vdf,
                     sp.rc_proof,
+                    sp.timelord_reward_puzzle_hash
                 )
                 return make_msg(ProtocolMessageTypes.respond_signage_point, full_node_response)
             else:
@@ -597,6 +598,7 @@ class FullNodeAPI:
                     request.challenge_chain_proof,
                     request.reward_chain_vdf,
                     request.reward_chain_proof,
+                    request.timelord_reward_puzzle_hash
                 ),
             )
 
@@ -1016,6 +1018,7 @@ class FullNodeAPI:
             request.challenge_chain_sp_proof,
             request.reward_chain_sp_vdf,
             request.reward_chain_sp_proof,
+            request.timelord_reward_puzzle_hash
         )
         await self.respond_signage_point(full_node_message, peer)
 
@@ -1276,13 +1279,30 @@ class FullNodeAPI:
     @execute_task
     @peer_required
     @api_request
-    async def new_compact_vdf(self, request: full_node_protocol.NewCompactVDF, peer: ws.WSSkynetConnection):
+    @bytes_required
+    async def new_compact_vdf(
+        self, request: full_node_protocol.NewCompactVDF, peer: ws.WSSkynetConnection, request_bytes: bytes = b""
+    ):
         if self.full_node.sync_store.get_sync_mode():
             return None
+
+        if len(self.full_node.compact_vdf_sem._waiters) > 20:
+            self.log.debug(f"Ignoring NewCompactVDF: {request}, _waiters")
+            return
+
+        name = std_hash(request_bytes)
+        if name in self.full_node.compact_vdf_requests:
+            self.log.debug(f"Ignoring NewCompactVDF: {request}, already requested")
+            return
+        self.full_node.compact_vdf_requests.add(name)
+
         # this semaphore will only allow a limited number of tasks call
         # new_compact_vdf() at a time, since it can be expensive
         async with self.full_node.compact_vdf_sem:
-            await self.full_node.new_compact_vdf(request, peer)
+            try:
+                await self.full_node.new_compact_vdf(request, peer)
+            finally:
+                self.full_node.compact_vdf_requests.remove(name)
 
     @peer_required
     @api_request

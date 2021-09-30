@@ -2,6 +2,8 @@ import logging
 from typing import Dict, List, Optional, Tuple
 
 import aiosqlite
+import sqlite3
+import re
 
 from skynet.consensus.block_record import BlockRecord
 from skynet.types.blockchain_format.sized_bytes import bytes32
@@ -11,6 +13,10 @@ from skynet.types.weight_proof import SubEpochChallengeSegment, SubEpochSegments
 from skynet.util.db_wrapper import DBWrapper
 from skynet.util.ints import uint32
 from skynet.util.lru_cache import LRUCache
+from skynet.util.config import load_config
+from skynet.util.default_root import DEFAULT_ROOT_PATH
+from skynet.util.path import path_from_root
+
 
 log = logging.getLogger(__name__)
 
@@ -28,8 +34,6 @@ class BlockStore:
         # All full blocks which have been added to the blockchain. Header_hash -> block
         self.db_wrapper = db_wrapper
         self.db = db_wrapper.db
-        await self.db.execute("pragma journal_mode=wal")
-        await self.db.execute("pragma synchronous=2")
         await self.db.execute(
             "CREATE TABLE IF NOT EXISTS full_blocks(header_hash text PRIMARY KEY, height bigint,"
             "  is_block tinyint, is_fully_compactified tinyint, block blob)"
@@ -236,6 +240,44 @@ class BlockStore:
         if row is not None:
             return BlockRecord.from_bytes(row[0])
         return None
+
+    def get_block_reward_mlt(height: uint32) -> int:
+        """
+        Return sync jolly block reward moltiplicator based to hash of precedent block
+        """
+        jolly_reward_mlt=1
+        config = load_config(DEFAULT_ROOT_PATH, "config.yaml")
+        db_path = path_from_root(DEFAULT_ROOT_PATH, config["full_node"]["database_path"][:+17] + config["selected_network"] + ".sqlite")
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+        cursor.execute("SELECT prev_hash from block_records WHERE height=?",(height,))
+        row = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        if row is not None:
+            prev_block_hash = str(row[0])
+            prev_block_hash = re.sub(r"0", "", re.sub(r"\s+", "", ' '.join([str(el) for el in re.findall('\d+', str(prev_block_hash))])))
+            s1,s2 = int(prev_block_hash[:len(prev_block_hash)//3]), int(prev_block_hash[len(prev_block_hash)//2:])
+            s1 = sum(map(int, str(s1)))-17
+            s2 = sum(map(int, str(s2)))
+            if s1>s2:
+                #_x10
+                jolly_reward_mlt=10
+            else:
+                s1,s2 = int(prev_block_hash[:len(prev_block_hash)//3]), int(prev_block_hash[len(prev_block_hash)//2:])
+                s1 = sum(map(int, str(s1)))-10
+                s2 = sum(map(int, str(s2)))
+                if s1>s2:
+                    #_x5
+                    jolly_reward_mlt=5
+                else:
+                    s1,s2 = int(prev_block_hash[:len(prev_block_hash)//3]), int(prev_block_hash[len(prev_block_hash)//2:])
+                    s1 = sum(map(int, str(s1)))-5
+                    s2 = sum(map(int, str(s2)))
+                    if s1>s2:
+                        #_x2
+                        jolly_reward_mlt=2
+        return jolly_reward_mlt
 
     async def get_block_records_in_range(
         self,

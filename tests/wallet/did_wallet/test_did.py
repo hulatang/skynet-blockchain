@@ -16,7 +16,7 @@ from blspy import AugSchemeMPL
 from skynet.types.spend_bundle import SpendBundle
 from skynet.wallet.transaction_record import TransactionRecord
 from skynet.wallet.derive_keys import master_sk_to_wallet_sk
-from skynet.consensus.block_rewards import calculate_pool_reward, calculate_base_farmer_reward
+from skynet.consensus.block_rewards import calculate_pool_reward, calculate_base_farmer_reward, calculate_base_timelord_fee
 from tests.time_out_assert import time_out_assert
 from secrets import token_bytes
 from skynet.wallet.util.transaction_type import TransactionType
@@ -70,7 +70,7 @@ class XTestDIDWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
@@ -178,7 +178,7 @@ class XTestDIDWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
@@ -281,7 +281,7 @@ class XTestDIDWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
@@ -326,7 +326,7 @@ class XTestDIDWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
@@ -431,7 +431,7 @@ class XTestDIDWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
@@ -523,7 +523,7 @@ class XTestDIDWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )

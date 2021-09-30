@@ -4,6 +4,7 @@ import logging
 import os
 import random
 import shutil
+import ssl
 import sys
 import tempfile
 import time
@@ -48,6 +49,7 @@ from skynet.consensus.vdf_info_computation import get_signage_point_vdf_info
 from skynet.full_node.signage_point import SignagePoint
 from skynet.plotting.util import PlotInfo, PlotsRefreshParameter, PlotRefreshResult, parse_plot_info
 from skynet.plotting.manager import PlotManager
+from skynet.server.server import ssl_context_for_server
 from skynet.types.blockchain_format.classgroup import ClassgroupElement
 from skynet.types.blockchain_format.coin import Coin, hash_coin_list
 from skynet.types.blockchain_format.foliage import Foliage, FoliageBlockData, FoliageTransactionBlock, TransactionsInfo
@@ -248,7 +250,7 @@ class BlockTools:
             sys.exit(1)
 
         refresh_done = False
-        refresh_parameter: PlotsRefreshParameter = PlotsRefreshParameter(120, 2, 10)
+        refresh_parameter: PlotsRefreshParameter = PlotsRefreshParameter(batch_size=2)
 
         def test_callback(update_result: PlotRefreshResult):
             if update_result.remaining_files == 0:
@@ -282,6 +284,13 @@ class BlockTools:
     @property
     def config(self) -> Dict:
         return copy.deepcopy(self._config)
+
+    def get_daemon_ssl_context(self) -> Optional[ssl.SSLContext]:
+        crt_path = self.root_path / self.config["daemon_ssl"]["private_crt"]
+        key_path = self.root_path / self.config["daemon_ssl"]["private_key"]
+        ca_cert_path = self.root_path / self.config["private_ssl_ca"]["crt"]
+        ca_key_path = self.root_path / self.config["private_ssl_ca"]["key"]
+        return ssl_context_for_server(ca_cert_path, ca_key_path, crt_path, key_path)
 
     def get_plot_signature(self, m: bytes32, plot_pk: G1Element) -> G2Element:
         """
@@ -337,6 +346,7 @@ class BlockTools:
         num_blocks: int,
         block_list_input: List[FullBlock] = None,
         farmer_reward_puzzle_hash: Optional[bytes32] = None,
+        timelord_reward_puzzle_hash: Optional[bytes32] = None,
         pool_reward_puzzle_hash: Optional[bytes32] = None,
         transaction_data: Optional[SpendBundle] = None,
         seed: bytes = b"",
@@ -365,6 +375,9 @@ class BlockTools:
 
         if farmer_reward_puzzle_hash is None:
             farmer_reward_puzzle_hash = self.farmer_ph
+
+        if timelord_reward_puzzle_hash is None:
+            timelord_reward_puzzle_hash = constants.TIMELORD_PUZZLE_HASH
 
         if len(block_list) == 0:
             if force_plot_id is not None:
@@ -451,6 +464,7 @@ class BlockTools:
                         uint8(signage_point_index),
                         finished_sub_slots_at_sp,
                         sub_slot_iters,
+                        timelord_reward_puzzle_hash,
                         normalized_to_identity_cc_sp,
                     )
                     if signage_point_index == 0:
@@ -727,6 +741,7 @@ class BlockTools:
                         uint8(signage_point_index),
                         finished_sub_slots_eos,
                         sub_slot_iters,
+                        timelord_reward_puzzle_hash,
                         normalized_to_identity_cc_sp,
                     )
                     if signage_point_index == 0:
@@ -871,6 +886,7 @@ class BlockTools:
                     uint8(signage_point_index),
                     finished_sub_slots,
                     constants.SUB_SLOT_ITERS_STARTING,
+                    constants.TIMELORD_PUZZLE_HASH
                 )
                 if signage_point_index == 0:
                     cc_sp_output_hash: bytes32 = cc_challenge
@@ -1100,10 +1116,11 @@ def get_signage_point(
     signage_point_index: uint8,
     finished_sub_slots: List[EndOfSubSlotBundle],
     sub_slot_iters: uint64,
+    timelord_reward_puzzle_hash: bytes32,
     normalized_to_identity_cc_sp: bool = False,
 ) -> SignagePoint:
     if signage_point_index == 0:
-        return SignagePoint(None, None, None, None)
+        return SignagePoint(None, None, None, None, timelord_reward_puzzle_hash)
     sp_iters = calculate_sp_iters(constants, sub_slot_iters, signage_point_index)
     overflow = is_overflow_block(constants, signage_point_index)
     sp_total_iters = uint128(
@@ -1148,7 +1165,7 @@ def get_signage_point(
             sp_iters,
             True,
         )
-    return SignagePoint(cc_sp_vdf, cc_sp_proof, rc_sp_vdf, rc_sp_proof)
+    return SignagePoint(cc_sp_vdf, cc_sp_proof, rc_sp_vdf, rc_sp_proof, timelord_reward_puzzle_hash)
 
 
 def finish_block(

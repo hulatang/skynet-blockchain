@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from skynet.consensus.block_rewards import calculate_base_farmer_reward, calculate_pool_reward
+from skynet.consensus.block_rewards import calculate_base_farmer_reward, calculate_pool_reward, calculate_base_timelord_fee
 from skynet.rpc.full_node_rpc_api import FullNodeRpcApi
 from skynet.rpc.full_node_rpc_client import FullNodeRpcClient
 from skynet.rpc.rpc_server import start_rpc_server
@@ -51,11 +51,11 @@ class TestWalletRpc:
             await full_node_api.farm_new_transaction_block(FarmNewBlockProtocol(ph))
 
         initial_funds = sum(
-            [calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) for i in range(1, num_blocks)]
+            [calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i)) for i in range(1, num_blocks)]
         )
         initial_funds_eventually = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks + 1)
             ]
         )

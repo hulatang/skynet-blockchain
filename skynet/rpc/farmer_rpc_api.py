@@ -70,6 +70,7 @@ class FarmerRpcApi:
                             "difficulty": sp.difficulty,
                             "sub_slot_iters": sp.sub_slot_iters,
                             "signage_point_index": sp.signage_point_index,
+                            "timelord_reward_puzzle_hash": sp.timelord_reward_puzzle_hash,
                         },
                         "proofs": pospaces,
                     }
@@ -89,6 +90,7 @@ class FarmerRpcApi:
                             "difficulty": sp.difficulty,
                             "sub_slot_iters": sp.sub_slot_iters,
                             "signage_point_index": sp.signage_point_index,
+                            "timelord_reward_puzzle_hash": sp.timelord_reward_puzzle_hash,
                         },
                         "proofs": pospaces,
                     }

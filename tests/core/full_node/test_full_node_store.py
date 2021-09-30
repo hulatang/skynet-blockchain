@@ -273,6 +273,7 @@ class TestFullNodeStore:
                 uint8(i),
                 [],
                 peak.sub_slot_iters,
+                timelord_reward_puzzle_hash=peak.timelord_puzzle_hash
             )
             assert store.new_signage_point(uint8(i), blockchain, peak, peak.sub_slot_iters, sp)
 
@@ -351,6 +352,7 @@ class TestFullNodeStore:
                 uint8(i),
                 [],
                 peak.sub_slot_iters,
+                timelord_reward_puzzle_hash=peak.timelord_puzzle_hash
             )
             assert store.new_signage_point(uint8(i), blockchain, peak, peak.sub_slot_iters, sp)
 
@@ -369,6 +371,7 @@ class TestFullNodeStore:
                     uint8(i),
                     finished_sub_slots[:slot_offset],
                     peak.sub_slot_iters,
+                    timelord_reward_puzzle_hash=peak.timelord_puzzle_hash
                 )
                 assert sp.cc_vdf is not None
                 saved_sp_hash = sp.cc_vdf.output.get_hash()
@@ -384,6 +387,7 @@ class TestFullNodeStore:
                 uint8(i),
                 finished_sub_slots[: len(finished_sub_slots)],
                 peak.sub_slot_iters,
+                timelord_reward_puzzle_hash=peak.timelord_puzzle_hash
             )
             assert not store.new_signage_point(uint8(i), blockchain, peak, peak.sub_slot_iters, sp)
 
@@ -393,6 +397,7 @@ class TestFullNodeStore:
             blocks[1].challenge_chain_sp_proof,
             blocks[1].reward_chain_block.reward_chain_sp_vdf,
             blocks[1].reward_chain_sp_proof,
+            None
         )
         assert not store.new_signage_point(
             blocks[1].reward_chain_block.signage_point_index,
@@ -433,6 +438,7 @@ class TestFullNodeStore:
                 uint8(i),
                 [],
                 peak.sub_slot_iters,
+                timelord_reward_puzzle_hash=peak.timelord_puzzle_hash
             )
             assert store.new_signage_point(uint8(i), blockchain, None, peak.sub_slot_iters, sp)
 
@@ -462,6 +468,7 @@ class TestFullNodeStore:
                     uint8(i),
                     finished_sub_slots[:slot_offset],
                     peak.sub_slot_iters,
+                    timelord_reward_puzzle_hash=peak.timelord_puzzle_hash
                 )
                 assert store.new_signage_point(uint8(i), blockchain, None, peak.sub_slot_iters, sp)
 
@@ -508,6 +515,7 @@ class TestFullNodeStore:
                 uint8(i),
                 finished_sub_slots,
                 peak.sub_slot_iters,
+                timelord_reward_puzzle_hash=peak.timelord_puzzle_hash
             )
             assert store.new_signage_point(uint8(i), empty_blockchain, sb, peak.sub_slot_iters, sp)
 
@@ -658,6 +666,7 @@ class TestFullNodeStore:
                         uint8(i),
                         finished_sub_slots,
                         peak.sub_slot_iters,
+                        timelord_reward_puzzle_hash=peak.timelord_puzzle_hash
                     )
                     all_sps[i] = sp
                     assert store.new_signage_point(uint8(i), blockchain, peak, peak.sub_slot_iters, sp)
@@ -688,6 +697,7 @@ class TestFullNodeStore:
                         uint8(i),
                         finished_sub_slots,
                         peak.sub_slot_iters,
+                        timelord_reward_puzzle_hash=peak.timelord_puzzle_hash
                     )
                     all_sps[i] = sp
                     assert store.new_signage_point(uint8(i), blockchain, peak, peak.sub_slot_iters, sp)

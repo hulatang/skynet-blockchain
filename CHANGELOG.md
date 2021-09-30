@@ -6,6 +6,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project does not yet adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 for setuptools_scm/PEP 440 reasons.
 
+## 0.9.9 Skynet blockchain 2021-09-25
+
+### Added
+
+- Added random jolly block reward algo basen on block hash with x2, x5, x10 reward moltiplicator.
+- Added special classic forever 5XNT block reward for all 99999 blocks before every halving.
+- Added timelord 0.1% fee reward for every block processed.
+
+## 0.9.8 Skynet blockchain 2021-09-16
+
+Today we’re releasing version 0.9.8 to address a resource bug with nodes, and we want to stress the importance of updating to it at the earliest convenience. The fix prevents a node from consuming excessive memory when many Bluebox Timelords are active on the chain.
+
+### Changed
+
+- Updated to BLS 1.0.6.
+- Updates to the Rust conditions parser.
+- Adjusted plot refresh parameter to improve plot loading times.
+
+### Fixed
+
+- Fixed memory utilization issue related to how the node handles compact VDFs generated from blueboxes. We recommend everyone update to this version to avoid memory issues that can impact farming and harvesting.
+- Fixed issues with reloading plot files detected as bad (this can happen during plot copying).
+
 ## 0.9.7 Skynet blockchain 2021-09-02
 
 ### Changed

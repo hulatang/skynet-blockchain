@@ -224,6 +224,7 @@ async def show_async(
                 address_prefix = config["network_overrides"]["config"][config["selected_network"]]["address_prefix"]
                 farmer_address = encode_puzzle_hash(block.farmer_puzzle_hash, address_prefix)
                 pool_address = encode_puzzle_hash(block.pool_puzzle_hash, address_prefix)
+                timelord_address = encode_puzzle_hash(block.timelord_puzzle_hash, address_prefix)
                 pool_pk = (
                     full_block.reward_chain_block.proof_of_space.pool_public_key
                     if full_block.reward_chain_block.proof_of_space.pool_public_key is not None
@@ -247,6 +248,7 @@ async def show_async(
                     f"Tx Filter Hash         {tx_filter_hash}\n"
                     f"Farmer Address         {farmer_address}\n"
                     f"Pool Address           {pool_address}\n"
+                    f"Timelord Address       {timelord_address}\n"
                     f"Fees Amount            {fees}\n"
                 )
             else:

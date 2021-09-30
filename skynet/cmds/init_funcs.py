@@ -90,7 +90,7 @@ def check_keys(new_root: Path, keychain: Optional[Keychain] = None) -> None:
 
     # Set the destinations
     if "xnt_target_address" not in config["farmer"]:
-        print(f"Setting the xnt destination address for coinbase fees reward to {all_targets[0]}")
+        print(f"Setting the xnt destination address fees reward to {all_targets[0]}")
         config["farmer"]["xnt_target_address"] = all_targets[0]
     elif config["farmer"]["xnt_target_address"] not in all_targets:
         print(
@@ -102,13 +102,25 @@ def check_keys(new_root: Path, keychain: Optional[Keychain] = None) -> None:
     if "pool" not in config:
         config["pool"] = {}
     if "xnt_target_address" not in config["pool"]:
-        print(f"Setting the xnt destination address for coinbase reward to {all_targets[0]}")
+        print(f"Setting the xnt pool destination address reward to {all_targets[0]}")
         config["pool"]["xnt_target_address"] = all_targets[0]
     elif config["pool"]["xnt_target_address"] not in all_targets:
         print(
             f"WARNING: using a pool address which we don't have the private"
             f" keys for. We searched the first {number_of_ph_to_search} addresses. Consider overriding "
             f"{config['pool']['xnt_target_address']} with {all_targets[0]}"
+        )
+
+    if "timelord" not in config:
+        config["timelord"] = {}
+    if "xnt_target_address" not in config["timelord"]:
+        print(f"Setting the xnt timelord destination address reward to {all_targets[0]}")
+        config["timelord"]["xnt_target_address"] = all_targets[0]
+    elif config["timelord"]["xnt_target_address"] not in all_targets:
+        print(
+            f"WARNING: using a timelord address which we don't have the private"
+            f" keys for. We searched the first {number_of_ph_to_search} addresses. Consider overriding "
+            f"{config['timelord']['xnt_target_address']} with {all_targets[0]}"
         )
 
     # Set the pool pks in the farmer

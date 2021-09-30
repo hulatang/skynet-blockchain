@@ -3,7 +3,7 @@ from typing import List
 
 import pytest
 
-from skynet.consensus.block_rewards import calculate_base_farmer_reward, calculate_pool_reward
+from skynet.consensus.block_rewards import calculate_base_farmer_reward, calculate_pool_reward, calculate_base_timelord_fee
 from skynet.full_node.mempool_manager import MempoolManager
 from skynet.simulator.simulator_protocol import FarmNewBlockProtocol
 from skynet.types.blockchain_format.coin import Coin
@@ -65,7 +65,7 @@ class TestCCWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
@@ -105,7 +105,7 @@ class TestCCWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
@@ -180,7 +180,7 @@ class TestCCWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
@@ -215,7 +215,7 @@ class TestCCWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
@@ -275,7 +275,7 @@ class TestCCWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
@@ -355,7 +355,7 @@ class TestCCWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
@@ -453,7 +453,7 @@ class TestCCWallet:
 
         funds = sum(
             [
-                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i))
+                calculate_pool_reward(uint32(i)) + calculate_base_farmer_reward(uint32(i)) + calculate_base_timelord_fee(uint32(i))
                 for i in range(1, num_blocks - 1)
             ]
         )
