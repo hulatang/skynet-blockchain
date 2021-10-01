@@ -1,17 +1,14 @@
-from typing import List, Optional, Set
+from typing import List, Optional
 
 import aiosqlite
 
 from skynet.types.blockchain_format.coin import Coin
 from skynet.types.blockchain_format.sized_bytes import bytes32
 from skynet.types.coin_record import CoinRecord
+from skynet.types.full_block import FullBlock
 from skynet.util.db_wrapper import DBWrapper
 from skynet.util.ints import uint32, uint64
 from skynet.util.lru_cache import LRUCache
-from time import time
-import logging
-
-log = logging.getLogger(__name__)
 
 
 class CoinStore:
@@ -32,8 +29,8 @@ class CoinStore:
         self.cache_size = cache_size
         self.db_wrapper = db_wrapper
         self.coin_record_db = db_wrapper.db
-        # the coin_name is unique in this table because the CoinStore always
-        # only represent a single peak
+        await self.coin_record_db.execute("pragma journal_mode=wal")
+        await self.coin_record_db.execute("pragma synchronous=2")
         await self.coin_record_db.execute(
             (
                 "CREATE TABLE IF NOT EXISTS coin_record("
@@ -64,32 +61,27 @@ class CoinStore:
         self.coin_record_cache = LRUCache(cache_size)
         return self
 
-    async def new_block(
-        self,
-        height: uint32,
-        timestamp: uint64,
-        included_reward_coins: Set[Coin],
-        tx_additions: List[Coin],
-        tx_removals: List[bytes32],
-    ):
+    async def new_block(self, block: FullBlock, tx_additions: List[Coin], tx_removals: List[bytes32]):
         """
         Only called for blocks which are blocks (and thus have rewards and transactions)
         """
-
-        start = time()
+        if block.is_transaction_block() is False:
+            return None
+        assert block.foliage_transaction_block is not None
 
         for coin in tx_additions:
             record: CoinRecord = CoinRecord(
                 coin,
-                height,
+                block.height,
                 uint32(0),
                 False,
                 False,
-                timestamp,
+                block.foliage_transaction_block.timestamp,
             )
             await self._add_coin_record(record, False)
 
-        if height == 0:
+        included_reward_coins = block.get_included_reward_coins()
+        if block.height == 0:
             assert len(included_reward_coins) == 0
         else:
             assert len(included_reward_coins) >= 2
@@ -97,27 +89,20 @@ class CoinStore:
         for coin in included_reward_coins:
             reward_coin_r: CoinRecord = CoinRecord(
                 coin,
-                height,
+                block.height,
                 uint32(0),
                 False,
                 True,
-                timestamp,
+                block.foliage_transaction_block.timestamp,
             )
             await self._add_coin_record(reward_coin_r, False)
 
         total_amount_spent: int = 0
         for coin_name in tx_removals:
-            total_amount_spent += await self._set_spent(coin_name, height)
+            total_amount_spent += await self._set_spent(coin_name, block.height)
 
         # Sanity check, already checked in block_body_validation
         assert sum([a.amount for a in tx_additions]) <= total_amount_spent
-        end = time()
-        if end - start > 10:
-            log.warning(
-                f"It took {end - start:0.2}s to apply {len(tx_additions)} additions and "
-                + f"{len(tx_removals)} removals to the coin store. Make sure "
-                + "blockchain database is on a fast drive"
-            )
 
     # Checks DB and DiffStores for CoinRecord with coin_name and returns it
     async def get_coin_record(self, coin_name: bytes32) -> Optional[CoinRecord]:
@@ -145,9 +130,6 @@ class CoinStore:
         return coins
 
     async def get_coins_removed_at_height(self, height: uint32) -> List[CoinRecord]:
-        # Special case to avoid querying all unspent coins (spent_index=0)
-        if height == 0:
-            return []
         cursor = await self.coin_record_db.execute("SELECT * from coin_record WHERE spent_index=?", (height,))
         rows = await cursor.fetchall()
         await cursor.close()
