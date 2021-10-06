@@ -119,7 +119,7 @@ python -m pip install wheel
 python -m pip install --extra-index-url https://pypi.skynet-network.org/v01/ miniupnpc==2.2.2 --no-cache-dir
 python -m pip install -e . --extra-index-url https://pypi.skynet-network.org/v01/ --no-cache-dir
 
-SKYNET_VER=$(git tag --sort=committerdate | tail -1)
+SKYNET_VER=$(git tag --sort version:refname | tail -1)
 
 echo ""
 echo "................................................................................

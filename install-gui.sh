@@ -102,7 +102,7 @@ else
 fi
 
 
-SKYNET_VER=$(git tag --sort=committerdate | tail -1)
+SKYNET_VER=$(git tag --sort version:refname | tail -1)
 
 echo ""
 echo "................................................................................
