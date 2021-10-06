@@ -150,6 +150,7 @@ class Err(Enum):
 
     INVALID_FEE_TOO_CLOSE_TO_ZERO = 123
     COIN_AMOUNT_NEGATIVE = 124
+    INVALID_SPEND_BUNDLE = 126
 
 
 class ValidationError(Exception):
