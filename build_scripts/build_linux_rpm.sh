@@ -1,4 +1,16 @@
 #!/bin/bash
+# Execute this script from project root folder.
+
+. ./activate
+cd build_scripts
+echo "Clear all..."
+rm -rf ./build
+rm -rf ./dist
+rm -rf ./final_installer
+rm -rf ../skynet-blockchain-gui/build
+rm -rf ../skynet-blockchain-gui/daemon
+echo "...OK"
+
 
 if [ ! "$1" ]; then
   echo "This script requires either amd64 of arm64 as an argument"
@@ -11,7 +23,6 @@ else
 	#PLATFORM="$1"
 	DIR_NAME="skynet-blockchain-linux-arm64"
 fi
-
 pip install setuptools_scm
 # The environment variable SKYNET_INSTALLER_VERSION needs to be defined
 # If the env variable NOTARIZE and the username and password variables are
@@ -19,12 +30,13 @@ pip install setuptools_scm
 SKYNET_INSTALLER_VERSION=$(python installer-version.py)
 
 if [ ! "$SKYNET_INSTALLER_VERSION" ]; then
-	echo "WARNING: No environment variable SKYNET_INSTALLER_VERSION set. Using 0.0.0."
-	SKYNET_INSTALLER_VERSION="0.0.0"
+        echo "WARNING: No environment variable SKYNET_INSTALLER_VERSION set. Using 0.0.0."
+        SKYNET_INSTALLER_VERSION="0.0.0"
 fi
 echo "Skynet Installer Version is: $SKYNET_INSTALLER_VERSION"
 
 echo "Installing npm and electron packagers"
+
 npm install electron-packager -g
 npm install electron-installer-redhat -g
 
@@ -32,9 +44,10 @@ echo "Create dist/"
 rm -rf dist
 mkdir dist
 
+
 echo "Create executables with pyinstaller"
 pip install pyinstaller==4.5
-SPEC_FILE=$(python -c 'import skynet; print(skynet.PYINSTALLER_SPEC_PATH)')
+SPEC_FILE=$(python3 -c 'import skynet; print(skynet.PYINSTALLER_SPEC_PATH)')
 pyinstaller --log-level=INFO "$SPEC_FILE"
 LAST_EXIT_CODE=$?
 if [ "$LAST_EXIT_CODE" -ne 0 ]; then
