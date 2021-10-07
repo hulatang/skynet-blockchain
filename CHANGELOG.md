@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project does not yet adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 for setuptools_scm/PEP 440 reasons.
 
+## 0.9.91 Skynet blockchain 2021-10-07
+
+There was found a mempool bug that where some transactions wich could get stuck in mempool.
+
+### Fixed
+
+- Improved mempool validation (Fixed criticals in mempool_manager).
+
 ## 0.9.9 Skynet blockchain 2021-09-25
 
 ### Added
