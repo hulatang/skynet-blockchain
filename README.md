@@ -1,4 +1,5 @@
 # skynet-blockchain
 
-Testnet is live
-Mainnet 10/2021
+Testnet is live!
+
+![Alt text](/bootstart_banner.jpg?raw=true "Optional Title")
