@@ -6,7 +6,68 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project does not yet adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 for setuptools_scm/PEP 440 reasons.
 
-## 0.9.91 Skynet blockchain 2021-10-07
+## 0.9.92 skynet-blockchain 2021-10-19
+
+### Added
+
+- Added did_rpc test
+- Add comments to DID innerpuz
+- Added state_change call when coin added
+- Added did_info for transaction sent
+- Add rust check announcements
+
+### Changed
+
+- Remove python condition parsing, use rust unconditionally
+- No need to assert_my_amount, it's done in rust
+- Assert my puzzlehash is done in rust, no need to check it in python
+- Parent id is checked in rust, no need to do it in python
+- My coin ID is checked in rust, no need to do it in python
+- Reorder condition checks to have to ones we won't see at the end
+- No need for the RUST_CONDITION_CHECKER constant anymore
+- Update pool tests to use get_name_puzzle_condition
+- Change test so that wallets recover into other wallets
+- Rename solution_to_pool_state
+- Remove tests dir from packages
+- Make DID wallet tests compatible with WalletStateManager lock checking
+- Allow getting unconfirmed balance from wallet_state_manager when under lock
+- Update DID wallet test to use async check for farmed txnt in wallet setup
+- Update hash commit for did_innerpuz.clvm
+- Update DID wallet RPC calls
+- Re-enable did tests
+- Remove unused assignation
+- Delete further references to deprecated did_spend function
+- Delete did tests related to singleton behaviours as that is tested elsewhere
+- Make sure amounts are uint64
+- Remove a deadlock from create_new_did_wallet
+- Check if removal belongs to the wallet
+- Did test cleanup
+- Clean up DID Wallet, add test for previously broken case
+- Update delete wallet parameters
+- Messages are a cons box where the first value denotes type of message
+- cc_wallet uses new parameter for get_confired_balance
+- Updates to the puzzle
+- get_block_reward_mlt generalization.
+- Change Update button pointer style
+
+### Fixed
+
+- Fix gui terminal emulator and gui realtime logs viewer.
+- Fix bug in wallet state manager related to falsely detecting pool create
+- Fix deadlock in DID wallet creation, and introduce create_new_did_wallet API call
+- Fixed the bugs related to DID puzzles
+- Fix parent_info fetching when recovering
+- Fix did_test
+- Lint fixes
+- Fix bare spend in did_wallet
+- Fix small bugs
+- Fix temppuzhash to be an innerpuz
+- Fix cc wallet bare raise
+- Fix duplicating bug with tx store
+- Fix unsigned arithmetic error
+- Fix top left gui logo vertical position
+
+## 0.9.91 skynet-blockchain 2021-10-07
 
 There was found a mempool bug that where some transactions wich could get stuck in mempool.
 
@@ -14,7 +75,7 @@ There was found a mempool bug that where some transactions wich could get stuck 
 
 - Improved mempool validation (Fixed criticals in mempool_manager).
 
-## 0.9.9 Skynet blockchain 2021-09-25
+## 0.9.9 skynet-blockchain 2021-09-25
 
 ### Added
 
@@ -22,7 +83,7 @@ There was found a mempool bug that where some transactions wich could get stuck 
 - Added special classic forever 5XNT block reward for all 99999 blocks before every halving.
 - Added timelord 0.1% fee reward for every block processed.
 
-## 0.9.8 Skynet blockchain 2021-09-16
+## 0.9.8 skynet-blockchain 2021-09-16
 
 Today we’re releasing version 0.9.8 to address a resource bug with nodes, and we want to stress the importance of updating to it at the earliest convenience. The fix prevents a node from consuming excessive memory when many Bluebox Timelords are active on the chain.
 
@@ -37,7 +98,7 @@ Today we’re releasing version 0.9.8 to address a resource bug with nodes, and 
 - Fixed memory utilization issue related to how the node handles compact VDFs generated from blueboxes. We recommend everyone update to this version to avoid memory issues that can impact farming and harvesting.
 - Fixed issues with reloading plot files detected as bad (this can happen during plot copying).
 
-## 0.9.7 Skynet blockchain 2021-09-02
+## 0.9.7 skynet-blockchain 2021-09-02
 
 ### Changed
 
@@ -57,7 +118,7 @@ Today we’re releasing version 0.9.8 to address a resource bug with nodes, and 
 
 - Fixed errors in the GUI install script.
 
-## 0.9.6 Skynet blockchain 2021-08-26
+## 0.9.6 skynet-blockchain 2021-08-26
 
 ### Added
 
@@ -109,7 +170,7 @@ submissions. Thanks to @RuiZhe for Chinese, Traditional; @HansCZ for Czech;
 - Fixed NPM publish in clvm_rs.
 - Thanks to @skweee for his investigation work on fixing mempool TX cache cost, where the cost of the mempool TX cache (for spend bundles that can't be included in a block yet) would not be reset when the cache was emptied.
 
-## 0.9.5 Skynet blockchain 2021-07-26
+## 0.9.5 skynet-blockchain 2021-07-26
 
 ### Added
 
@@ -148,7 +209,7 @@ submissions. Thanks to @RuiZhe for Chinese, Traditional; @HansCZ for Czech;
 - The wallet ignores coins sent by accident to the pool contract address and allows self pooling rewards to be claimed in this case.
 - Thanks @mgraczyk for fixing the use of print_exc in farmer.
 
-## 0.9.4 Skynet blockchain 2021-07-20
+## 0.9.4 skynet-blockchain 2021-07-20
 
 ### Added
 
@@ -162,19 +223,19 @@ submissions. Thanks to @RuiZhe for Chinese, Traditional; @HansCZ for Czech;
 - Fix windows version .exe bugs and problems.
 - Update electron to 13.1.9 with some fixed changes
 
-## 0.3.0 Skynet blockchain 2021-07-18
+## 0.3.0 skynet-blockchain 2021-07-18
 
 ### Changed
 
 - Some changes and fixing.
 
-## 0.2.0 Skynet blockchain 2021-07-17
+## 0.2.0 skynet-blockchain 2021-07-17
 
 ### Changed
 
 - Certs and consensus changes
 
-## 0.1.0 Skynet blockchain 2021-07-16
+## 0.1.0 skynet-blockchain 2021-07-16
 
 ### Changed
 

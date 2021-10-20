@@ -247,7 +247,8 @@ class BlockStore:
         """
         jolly_reward_mlt=1
         config = load_config(DEFAULT_ROOT_PATH, "config.yaml")
-        db_path = path_from_root(DEFAULT_ROOT_PATH, config["full_node"]["database_path"][:+17] + config["selected_network"] + ".sqlite")
+        db_path = path_from_root(DEFAULT_ROOT_PATH, config["full_node"]["database_path"].replace("CHALLENGE", config["selected_network"]))
+
         connection = sqlite3.connect(db_path)
         cursor = connection.cursor()
         cursor.execute("SELECT prev_hash from block_records WHERE height=?",(height,))
@@ -258,23 +259,21 @@ class BlockStore:
             prev_block_hash = str(row[0])
             prev_block_hash = re.sub(r"0", "", re.sub(r"\s+", "", ' '.join([str(el) for el in re.findall('\d+', str(prev_block_hash))])))
             s1,s2 = int(prev_block_hash[:len(prev_block_hash)//3]), int(prev_block_hash[len(prev_block_hash)//2:])
-            s1 = sum(map(int, str(s1)))-17
-            s2 = sum(map(int, str(s2)))
-            if s1>s2:
+            s_1 = sum(map(int, str(s1)))-17
+            s_2 = sum(map(int, str(s2)))
+            if s_1>s_2:
                 #_x10
                 jolly_reward_mlt=10
             else:
-                s1,s2 = int(prev_block_hash[:len(prev_block_hash)//3]), int(prev_block_hash[len(prev_block_hash)//2:])
-                s1 = sum(map(int, str(s1)))-10
-                s2 = sum(map(int, str(s2)))
-                if s1>s2:
+                s_1 = sum(map(int, str(s1)))-10
+                s_2 = sum(map(int, str(s2)))
+                if s_1>s_2:
                     #_x5
                     jolly_reward_mlt=5
                 else:
-                    s1,s2 = int(prev_block_hash[:len(prev_block_hash)//3]), int(prev_block_hash[len(prev_block_hash)//2:])
-                    s1 = sum(map(int, str(s1)))-5
-                    s2 = sum(map(int, str(s2)))
-                    if s1>s2:
+                    s_1 = sum(map(int, str(s1)))-5
+                    s_2 = sum(map(int, str(s2)))
+                    if s_1>s_2:
                         #_x2
                         jolly_reward_mlt=2
         return jolly_reward_mlt

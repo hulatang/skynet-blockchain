@@ -21,7 +21,6 @@ network_overrides: &network_overrides
       #MEMPOOL_BLOCK_BUFFER: 10
       #EPOCH_BLOCKS: 768
       #DIFFICULTY_STARTING: 30
-      RUST_CONDITION_CHECKER: 0
   config:
     #mainnet:
       #address_prefix: "xnt"
@@ -152,7 +151,7 @@ timelord_launcher:
 
 timelord:
 
-  # Replace this with a real puzzle hash
+  # Replace this with a real target address
   # xnt_target_address: txnt102gkhhzs60grx7cfnpng5n6rjecr89r86l5s8xux2za8k820cxsq64ssdg
 
   # The timelord server (if run) will run on this port
