@@ -163,7 +163,7 @@ class TestPoolWalletRpc:
         )
         plot_id = ProofOfSpace.calculate_plot_id_ph(p2_singleton_puzzle_hash, plot_public_key)
         try:
-            plot_keys = PlotKeys(bt.farmer_pk, None, encode_puzzle_hash(p2_singleton_puzzle_hash, "txnt"))
+            plot_keys = PlotKeys(bt.farmer_pk, None, encode_puzzle_hash(p2_singleton_puzzle_hash, "xnt"))
 
             await create_plots(
                 args,
@@ -461,7 +461,7 @@ class TestPoolWalletRpc:
         assert len(await wallet_node_0.wallet_state_manager.tx_store.get_unconfirmed_for_wallet(2)) == 0
 
         tr: TransactionRecord = await client.send_transaction(
-            1, 100, encode_puzzle_hash(status.p2_singleton_puzzle_hash, "txnt")
+            1, 100, encode_puzzle_hash(status.p2_singleton_puzzle_hash, "xnt")
         )
         await time_out_assert(
             10,

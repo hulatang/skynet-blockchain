@@ -56,7 +56,7 @@ $env:SKYNET_INSTALLER_VERSION = python .\build_scripts\installer-version.py -win
 if (-not (Test-Path env:SKYNET_INSTALLER_VERSION)) {
   $env:SKYNET_INSTALLER_VERSION = '0.0.0'
   Write-Output "WARNING: No environment variable SKYNET_INSTALLER_VERSION set. Using 0.0.0"
-  }
+}
 Write-Output "Skynet Version is: $env:SKYNET_INSTALLER_VERSION"
 Write-Output "   ---"
 
@@ -105,7 +105,7 @@ npm audit fix
 #git status
 
 Write-Output "   ---"
-Write-Output "Electron package Windows Installer"
+Write-Output "Build Windows Application"
 Write-Output "   ---"
 ./node_modules/.bin/electron-rebuild -f -w node-pty
 npm run build
@@ -131,7 +131,7 @@ Write-Output "packageName is $packageName"
 
 Write-Output "   ---"
 Write-Output "electron-packager"
-electron-packager . Skynet --asar.unpack="**\daemon\**" --overwrite --icon=.\src\assets\img\skynet.ico --app-version=$packageVersion --platform=win32 --arch=x64 
+electron-packager . Skynet --asar.unpack="{**\daemon\**,**\node_modules\node-pty\build\Release\*}" --overwrite --icon=.\src\assets\img\skynet.ico --app-version=$packageVersion --platform=win32 --arch=x64
 Write-Output "   ---"
 
 Write-Output "   ---"

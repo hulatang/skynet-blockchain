@@ -14,6 +14,8 @@ _halving_factor = 2 / 5       # reward decreaser factor yrs<=10
 _pool_reward_mlt = 7 / 8      # 87,5% of reward
 _farmer_reward_mlt = 1 / 8    # 12.5% of reward
 _timelord_fee_mlt = 0.1 / 100 # 0.1% of fee for block processed
+_testnet_airdrop = (1000*50)+(500*51)+(250*99)+(100*306) # 130850xnt - Airdrop from testnet_09 Top500 https://skynet-network.org/news/13-testnet-09-addresses-ranking-top500
+_prefarm_amount = 5000000 + _testnet_airdrop
 block_store: BlockStore = BlockStore
 
 def round_reward(num) -> int:
@@ -28,7 +30,7 @@ def calculate_pool_reward(height: uint32) -> uint64:
     rates increase continuously.
     """
     if height == 0:
-        return uint64(int(_pool_reward_mlt * 5000000 * _synt_per_skynet))
+        return uint64(int(_pool_reward_mlt * _prefarm_amount * _synt_per_skynet))
     else:
         year = 1
 
@@ -54,7 +56,7 @@ def calculate_base_farmer_reward(height: uint32) -> uint64:
     rates increase continuously !!
     """
     if height == 0:
-        return uint64(int(_farmer_reward_mlt * 5000000 * _synt_per_skynet))
+        return uint64(int(_farmer_reward_mlt * _prefarm_amount * _synt_per_skynet))
     else:
         year = 1
     
@@ -81,7 +83,9 @@ def calculate_base_timelord_fee(height: uint32) -> uint64:
     """
     year = 1
     while True:
-        if height < year * _blocks_per_year:
+        if height < (4608*7): # First week x5 timelord reward
+            return uint64(int((_timelord_fee_mlt*5) * 5 * _synt_per_skynet))
+        elif height < year * _blocks_per_year:
             if year == 1:
                 return uint64(int(_timelord_fee_mlt * 5 * _synt_per_skynet))
             elif year > 1 and year <= 10:
