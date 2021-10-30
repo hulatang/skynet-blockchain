@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project does not yet adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 for setuptools_scm/PEP 440 reasons.
 
+## 1.0.0 skynet-blockchain 2021-10-29
+
+### Added
+
+- Added timelord special x5 fees for first week from bootstart
+- Added 130850xnt to prefarm for Airdrop from testnet_09 Top500
+
+### Changed
+
+- Generate new cert for mainnet bootstart
+- Change genesis challenge for mainnet bootstart
+- Change DIFFICULTY_CONSTANT_FACTOR and DIFFICULTY_STARTING for mainnet bootstart
+- Change address prefix from TXNT to XNT
+
+### Fixed
+
+- Fix GUI white screen in some Windows Server versions
+
 ## 0.9.92 skynet-blockchain 2021-10-19
 
 ### Added

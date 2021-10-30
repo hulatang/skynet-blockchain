@@ -95,7 +95,7 @@ def configure(
             testnet_port = "59999"
             testnet_introducer = "testnet-introducer.skynet-network.org"
             testnet_dns_introducer = "dns-introducer-testnet5.skynet-network.org"
-            testnet = "testnet_09"
+            testnet = "testnet_10"
             config["full_node"]["port"] = int(testnet_port)
             config["full_node"]["introducer_peer"]["port"] = int(testnet_port)
             config["farmer"]["full_node_peer"]["port"] = int(testnet_port)
